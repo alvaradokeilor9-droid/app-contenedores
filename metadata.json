@@ -1,0 +1,6 @@
+{
+  "name": "Cargador de Fotos de Contenedor a Google Drive",
+  "description": "Carga masiva de más de 100 fotos organizadas automáticamente en Google Drive por número de contenedor, cliente y orden de compra (PO).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
