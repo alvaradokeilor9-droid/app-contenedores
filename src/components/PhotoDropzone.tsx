@@ -3,11 +3,13 @@ import {
   UploadCloud,
   FolderPlus,
   Camera,
-  Image as ImageIcon,
-  Layers,
-  Zap,
+  Images,
   CheckCircle2,
-  Plus
+  Plus,
+  Zap,
+  Layers,
+  Sparkles,
+  Smartphone
 } from 'lucide-react';
 import { formatBytes } from '../lib/imageProcessor';
 
@@ -25,7 +27,7 @@ export const PhotoDropzone: React.FC<PhotoDropzoneProps> = ({
   isOptimizing,
 }) => {
   const [isDragOver, setIsDragOver] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
   const folderInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
@@ -73,53 +75,59 @@ export const PhotoDropzone: React.FC<PhotoDropzoneProps> = ({
   };
 
   return (
-    <div className="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-4 sm:p-6 shadow-xl backdrop-blur-sm">
-      <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-700/60">
+    <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl backdrop-blur-sm">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 mb-4 border-b border-slate-800">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center shrink-0">
             <UploadCloud className="w-4 h-4" />
           </div>
           <div>
-            <h2 className="text-base font-bold text-white tracking-tight">
-              2. Carga Masiva de Fotografías
+            <h2 className="text-base font-bold text-white tracking-tight flex items-center gap-2">
+              2. Selección y Carga de Fotos
             </h2>
             <p className="text-xs text-slate-400">
-              Soporta más de 100 fotos simultáneas, arrastre de carpetas o captura en tiempo real
+              Abre la galería de tu celular o PC y selecciona más de 100 fotos
             </p>
           </div>
         </div>
 
         {currentCount > 0 && (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 self-start sm:self-center">
             <span className="text-xs px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-semibold flex items-center gap-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5" />
-              {currentCount} {currentCount === 1 ? 'Foto cargada' : 'Fotos cargadas'} ({formatBytes(totalSizeBytes)})
+              <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+              <span>{currentCount} {currentCount === 1 ? 'Foto' : 'Fotos'}</span>
+              <span className="text-emerald-300/80 font-mono">({formatBytes(totalSizeBytes)})</span>
             </span>
           </div>
         )}
       </div>
 
       {/* Hidden File Inputs */}
+      {/* 1. Gallery input (multiple photos selection) */}
       <input
-        ref={fileInputRef}
+        ref={galleryInputRef}
+        id="input-gallery-photos"
         type="file"
         multiple
         accept="image/*"
         onChange={handleFileInputChange}
         className="hidden"
       />
-      {/* Directory Selector */}
+      {/* 2. Directory Selector (desktop folders) */}
       <input
         ref={folderInputRef}
+        id="input-folder-photos"
         type="file"
         multiple
         {...({ webkitdirectory: '', directory: '' } as React.InputHTMLAttributes<HTMLInputElement>)}
         onChange={handleFileInputChange}
         className="hidden"
       />
-      {/* Camera Capture on Mobile */}
+      {/* 3. Camera Capture direct input */}
       <input
         ref={cameraInputRef}
+        id="input-camera-capture"
         type="file"
         accept="image/*"
         capture="environment"
@@ -127,99 +135,97 @@ export const PhotoDropzone: React.FC<PhotoDropzoneProps> = ({
         className="hidden"
       />
 
-      {/* Drop Area */}
+      {/* Primary Mobile Action Buttons (Optimized for Touch on Cellphones) */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+        {/* Main Button: ABRIR GALERÍA */}
+        <button
+          id="btn-open-gallery"
+          type="button"
+          onClick={() => galleryInputRef.current?.click()}
+          className="w-full flex items-center justify-center gap-3 p-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl shadow-lg shadow-blue-500/20 transition-all active:scale-[0.98] cursor-pointer"
+        >
+          <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center shrink-0">
+            <Images className="w-5 h-5 text-white" />
+          </div>
+          <div className="text-left">
+            <div className="text-sm font-bold flex items-center gap-1.5">
+              <span>Abrir Galería</span>
+              <span className="text-[10px] px-1.5 py-0.2 bg-white/25 rounded-full font-mono">+100</span>
+            </div>
+            <div className="text-[11px] text-blue-100/80">Seleccionar fotos del celular o PC</div>
+          </div>
+        </button>
+
+        {/* Button: TOMAR FOTO CON CÁMARA */}
+        <button
+          id="btn-take-camera-photo"
+          type="button"
+          onClick={() => cameraInputRef.current?.click()}
+          className="w-full flex items-center justify-center gap-3 p-4 bg-slate-800 hover:bg-slate-700/90 text-slate-100 border border-slate-700/80 rounded-xl shadow transition-all active:scale-[0.98] cursor-pointer"
+        >
+          <div className="w-10 h-10 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0">
+            <Camera className="w-5 h-5" />
+          </div>
+          <div className="text-left">
+            <div className="text-sm font-bold text-white">Tomar Foto</div>
+            <div className="text-[11px] text-slate-400">Capturar con la cámara</div>
+          </div>
+        </button>
+
+        {/* Button: SUBIR CARPETA */}
+        <button
+          id="btn-upload-folder"
+          type="button"
+          onClick={() => folderInputRef.current?.click()}
+          className="w-full flex items-center justify-center gap-3 p-4 bg-slate-800 hover:bg-slate-700/90 text-slate-100 border border-slate-700/80 rounded-xl shadow transition-all active:scale-[0.98] cursor-pointer"
+        >
+          <div className="w-10 h-10 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center shrink-0">
+            <FolderPlus className="w-5 h-5" />
+          </div>
+          <div className="text-left">
+            <div className="text-sm font-bold text-white">Subir Carpeta</div>
+            <div className="text-[11px] text-slate-400">Cargar carpeta completa</div>
+          </div>
+        </button>
+      </div>
+
+      {/* Drag & Drop Area for Desktop */}
       <div
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        onClick={() => fileInputRef.current?.click()}
-        className={`relative border-2 border-dashed rounded-xl p-6 sm:p-8 text-center transition-all cursor-pointer group ${
+        onClick={() => galleryInputRef.current?.click()}
+        className={`relative border-2 border-dashed rounded-xl p-5 sm:p-6 text-center transition-all cursor-pointer group ${
           isDragOver
-            ? 'border-indigo-400 bg-indigo-500/10 scale-[1.008]'
-            : 'border-slate-700 hover:border-indigo-500/60 bg-slate-900/60 hover:bg-slate-900/90'
+            ? 'border-indigo-400 bg-indigo-500/10 scale-[1.005]'
+            : 'border-slate-800 hover:border-indigo-500/50 bg-slate-950/50 hover:bg-slate-950/80'
         }`}
       >
-        <div className="flex flex-col items-center justify-center max-w-md mx-auto">
-          <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center justify-center mb-3 group-hover:scale-110 group-hover:bg-indigo-500/20 transition-transform">
-            <UploadCloud className="w-7 h-7" />
+        <div className="flex flex-col items-center justify-center max-w-sm mx-auto">
+          <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+            <UploadCloud className="w-5 h-5" />
           </div>
 
-          <h3 className="text-base font-semibold text-white mb-1">
+          <h3 className="text-xs sm:text-sm font-semibold text-white mb-0.5">
             {currentCount > 0
-              ? 'Arrastra más fotos o haz clic para añadir'
-              : 'Arrastra y suelta tus fotos aquí'}
+              ? '¿Deseas agregar más fotos? Haz clic o arrástralas aquí'
+              : 'O arrastra y suelta tus fotos en esta zona'}
           </h3>
-          <p className="text-xs text-slate-400 mb-4">
-            Selecciona cientos de fotos de una sola vez o sube una carpeta completa
+          <p className="text-[11px] text-slate-400">
+            Admite JPG, PNG, WEBP, HEIC/HEIF sin límite de cantidad
           </p>
-
-          {/* Quick Trigger Buttons inside Drop Area */}
-          <div
-            className="flex flex-wrap items-center justify-center gap-2.5"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              id="btn-select-photos"
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                fileInputRef.current?.click();
-              }}
-              className="flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl shadow-lg shadow-indigo-600/25 hover:scale-[1.02] transition-all cursor-pointer"
-            >
-              {currentCount > 0 ? (
-                <>
-                  <Plus className="w-4 h-4" />
-                  Añadir Más Fotos (+100)
-                </>
-              ) : (
-                <>
-                  <ImageIcon className="w-4 h-4" />
-                  Seleccionar Fotos (+100)
-                </>
-              )}
-            </button>
-
-            <button
-              id="btn-select-folder"
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                folderInputRef.current?.click();
-              }}
-              className="flex items-center gap-1.5 px-3.5 py-2.5 text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600/80 rounded-xl transition-all cursor-pointer"
-              title="Carga una carpeta completa con todas sus fotos"
-            >
-              <FolderPlus className="w-4 h-4 text-blue-400" />
-              Subir Carpeta Completa
-            </button>
-
-            <button
-              id="btn-take-photo"
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                cameraInputRef.current?.click();
-              }}
-              className="flex items-center gap-1.5 px-3.5 py-2.5 text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600/80 rounded-xl transition-all cursor-pointer"
-              title="Tomar foto con la cámara del teléfono o tablet"
-            >
-              <Camera className="w-4 h-4 text-emerald-400" />
-              Tomar Foto
-            </button>
-          </div>
         </div>
 
         {/* Feature Badges */}
-        <div className="mt-5 pt-4 border-t border-slate-800/80 flex flex-wrap items-center justify-center gap-4 text-[11px] text-slate-400">
+        <div className="mt-3 pt-3 border-t border-slate-800/80 flex flex-wrap items-center justify-center gap-3 text-[10px] sm:text-[11px] text-slate-400">
           <span className="flex items-center gap-1">
-            <Zap className="w-3 h-3 text-amber-400" /> Subida concurrente optimizada
+            <Zap className="w-3 h-3 text-amber-400" /> Subida rápida concurrente
           </span>
           <span className="flex items-center gap-1">
-            <Layers className="w-3 h-3 text-blue-400" /> Sin límite de cantidad
+            <Layers className="w-3 h-3 text-blue-400" /> +100 Fotos en paralelo
           </span>
           <span className="flex items-center gap-1">
-            <CheckCircle2 className="w-3 h-3 text-emerald-400" /> JPG, PNG, WEBP, HEIC
+            <Smartphone className="w-3 h-3 text-emerald-400" /> Optimizado para celular
           </span>
         </div>
       </div>

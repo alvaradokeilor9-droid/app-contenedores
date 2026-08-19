@@ -6,12 +6,11 @@ import {
   Lock,
   Calendar,
   FolderSync,
-  Sparkles,
   Copy,
   Check,
-  Info,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Sparkles
 } from 'lucide-react';
 import { ContainerMetadata } from '../types';
 import { buildFolderName } from '../lib/imageProcessor';
@@ -45,7 +44,6 @@ export const ContainerForm: React.FC<ContainerFormProps> = ({
   };
 
   const handleContainerInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Automatically uppercase container numbers for logistics standards
     const val = e.target.value.toUpperCase();
     onChange({ containerNumber: val });
   };
@@ -55,36 +53,39 @@ export const ContainerForm: React.FC<ContainerFormProps> = ({
   };
 
   return (
-    <div className="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-4 sm:p-6 shadow-xl backdrop-blur-sm">
-      <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-700/60">
+    <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl backdrop-blur-sm">
+      {/* Header */}
+      <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-800">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 border border-blue-500/30 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 border border-blue-500/30 flex items-center justify-center shrink-0">
             <Container className="w-4 h-4" />
           </div>
           <div>
             <h2 className="text-base font-bold text-white tracking-tight">
-              1. Datos del Contenedor y Destino
+              1. Datos del Contenedor
             </h2>
             <p className="text-xs text-slate-400">
-              Estos 3 datos definirán la carpeta creada automáticamente en Google Drive
+              Datos para nombrar y organizar la carpeta automáticamente
             </p>
           </div>
         </div>
 
-        <div className="hidden sm:flex items-center gap-2">
-          <span className="text-xs px-2.5 py-1 rounded-full bg-slate-900/80 text-slate-300 border border-slate-700 font-mono">
-            {photosCount} {photosCount === 1 ? 'foto lista' : 'fotos listas'}
-          </span>
-        </div>
+        {photosCount > 0 && (
+          <div className="hidden sm:flex items-center gap-2">
+            <span className="text-xs px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700 font-mono">
+              {photosCount} {photosCount === 1 ? 'foto lista' : 'fotos listas'}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Main 3 Core Fields */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-4">
         {/* Contenedor */}
         <div className="space-y-1.5">
           <label
             htmlFor="input-container-num"
-            className="flex items-center gap-1.5 text-xs font-semibold text-slate-200 uppercase tracking-wider"
+            className="flex items-center gap-1.5 text-xs font-bold text-slate-200 uppercase tracking-wider"
           >
             <Container className="w-3.5 h-3.5 text-blue-400" />
             Número de Contenedor <span className="text-rose-400">*</span>
@@ -94,14 +95,16 @@ export const ContainerForm: React.FC<ContainerFormProps> = ({
               id="input-container-num"
               type="text"
               required
+              autoCapitalize="characters"
+              autoCorrect="off"
               value={metadata.containerNumber}
               onChange={handleContainerInput}
               placeholder="Ej: MSKU9876543"
-              className="w-full bg-slate-900/90 border border-slate-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 font-mono tracking-wider transition-all outline-none"
+              className="w-full bg-slate-950/80 border border-slate-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl px-3.5 py-3 text-sm text-white placeholder-slate-500 font-mono tracking-wider transition-all outline-none"
             />
           </div>
-          <p className="text-[11px] text-slate-400 flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span> 4 letras + 7 dígitos estándar
+          <p className="text-[11px] text-slate-400">
+            4 letras + 7 números (ej: MSKU1234567)
           </p>
         </div>
 
@@ -109,7 +112,7 @@ export const ContainerForm: React.FC<ContainerFormProps> = ({
         <div className="space-y-1.5">
           <label
             htmlFor="input-client-name"
-            className="flex items-center gap-1.5 text-xs font-semibold text-slate-200 uppercase tracking-wider"
+            className="flex items-center gap-1.5 text-xs font-bold text-slate-200 uppercase tracking-wider"
           >
             <User className="w-3.5 h-3.5 text-emerald-400" />
             Nombre del Cliente <span className="text-rose-400">*</span>
@@ -118,13 +121,14 @@ export const ContainerForm: React.FC<ContainerFormProps> = ({
             id="input-client-name"
             type="text"
             required
+            autoCapitalize="words"
             value={metadata.clientName}
             onChange={(e) => onChange({ clientName: e.target.value })}
-            placeholder="Ej: Logística Del Valle / Walmart"
-            className="w-full bg-slate-900/90 border border-slate-700 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 transition-all outline-none"
+            placeholder="Ej: Logística Del Valle"
+            className="w-full bg-slate-950/80 border border-slate-700 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 rounded-xl px-3.5 py-3 text-sm text-white placeholder-slate-500 transition-all outline-none"
           />
-          <p className="text-[11px] text-slate-400 flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Nombre o razón social
+          <p className="text-[11px] text-slate-400">
+            Empresa o cliente destino
           </p>
         </div>
 
@@ -132,7 +136,7 @@ export const ContainerForm: React.FC<ContainerFormProps> = ({
         <div className="space-y-1.5">
           <label
             htmlFor="input-po-number"
-            className="flex items-center gap-1.5 text-xs font-semibold text-slate-200 uppercase tracking-wider"
+            className="flex items-center gap-1.5 text-xs font-bold text-slate-200 uppercase tracking-wider"
           >
             <FileText className="w-3.5 h-3.5 text-amber-400" />
             Orden de Compra / PO <span className="text-rose-400">*</span>
@@ -141,30 +145,32 @@ export const ContainerForm: React.FC<ContainerFormProps> = ({
             id="input-po-number"
             type="text"
             required
+            autoCapitalize="characters"
+            autoCorrect="off"
             value={metadata.poNumber}
             onChange={handlePOInput}
             placeholder="Ej: PO-2026-449"
-            className="w-full bg-slate-900/90 border border-slate-700 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 font-mono transition-all outline-none"
+            className="w-full bg-slate-950/80 border border-slate-700 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 rounded-xl px-3.5 py-3 text-sm text-white placeholder-slate-500 font-mono transition-all outline-none"
           />
-          <p className="text-[11px] text-slate-400 flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Purchase Order / Pedido
+          <p className="text-[11px] text-slate-400">
+            Número de orden de compra
           </p>
         </div>
       </div>
 
       {/* Live Folder Preview Banner */}
-      <div className="mt-4 p-3.5 rounded-xl bg-slate-900/90 border border-blue-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <div className="flex items-start sm:items-center gap-3">
+      <div className="mt-4 p-3.5 rounded-xl bg-slate-950/90 border border-blue-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div className="flex items-start sm:items-center gap-3 w-full sm:w-auto">
           <div className="w-8 h-8 rounded-lg bg-blue-600/20 text-blue-400 flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
             <FolderSync className="w-4 h-4" />
           </div>
-          <div>
-            <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+          <div className="overflow-hidden">
+            <div className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
               <span>Nombre de Carpeta en Google Drive</span>
-              <span className="text-[10px] text-blue-400 font-normal">(Vista previa en vivo)</span>
             </div>
-            <div className="text-sm font-mono font-bold text-white break-all flex items-center gap-2 mt-0.5">
-              <span>📂 {folderName}</span>
+            <div className="text-xs sm:text-sm font-mono font-bold text-white break-all flex items-center gap-1.5 mt-0.5">
+              <span className="text-blue-300">📁</span>
+              <span>{folderName}</span>
             </div>
           </div>
         </div>
@@ -174,13 +180,13 @@ export const ContainerForm: React.FC<ContainerFormProps> = ({
             id="btn-copy-folder-name"
             type="button"
             onClick={handleCopyFolderName}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700 transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700 transition-colors cursor-pointer"
             title="Copiar nombre de carpeta"
           >
             {copied ? (
               <>
                 <Check className="w-3.5 h-3.5 text-emerald-400" />
-                <span className="text-emerald-400">Copiado</span>
+                <span className="text-emerald-400 font-semibold">Copiado</span>
               </>
             ) : (
               <>
@@ -193,18 +199,18 @@ export const ContainerForm: React.FC<ContainerFormProps> = ({
       </div>
 
       {/* Advanced / Optional Fields Toggle */}
-      <div className="mt-3 pt-3 border-t border-slate-700/50">
+      <div className="mt-3 pt-3 border-t border-slate-800">
         <button
           type="button"
           onClick={() => setShowAdvanced(!showAdvanced)}
-          className="flex items-center gap-1.5 text-xs font-medium text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
+          className="flex items-center gap-1.5 text-xs font-medium text-slate-400 hover:text-slate-200 transition-colors cursor-pointer py-1"
         >
-          <span>Campos adicionales (Sello, Fecha, Inspector, Formato de carpeta)</span>
+          <span>Campos adicionales (Sello, Fecha, Inspector)</span>
           {showAdvanced ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
         </button>
 
         {showAdvanced && (
-          <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3.5 pt-2">
+          <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 pt-2">
             {/* Sello / Precinto */}
             <div className="space-y-1">
               <label className="text-[11px] font-semibold text-slate-300 flex items-center gap-1">
@@ -215,7 +221,7 @@ export const ContainerForm: React.FC<ContainerFormProps> = ({
                 value={metadata.sealNumber || ''}
                 onChange={(e) => onChange({ sealNumber: e.target.value.toUpperCase() })}
                 placeholder="Ej: SL-993812"
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 font-mono outline-none focus:border-blue-500"
+                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 font-mono outline-none focus:border-blue-500"
               />
             </div>
 
@@ -228,21 +234,21 @@ export const ContainerForm: React.FC<ContainerFormProps> = ({
                 type="date"
                 value={metadata.inspectionDate}
                 onChange={(e) => onChange({ inspectionDate: e.target.value })}
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-blue-500"
+                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-blue-500"
               />
             </div>
 
             {/* Inspector */}
             <div className="space-y-1">
               <label className="text-[11px] font-semibold text-slate-300 flex items-center gap-1">
-                <User className="w-3 h-3 text-slate-400" /> Nombre Inspector
+                <User className="w-3 h-3 text-slate-400" /> Inspector
               </label>
               <input
                 type="text"
                 value={metadata.inspectorName || ''}
                 onChange={(e) => onChange({ inspectorName: e.target.value })}
                 placeholder="Ej: Carlos M."
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 outline-none focus:border-blue-500"
+                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 outline-none focus:border-blue-500"
               />
             </div>
 
@@ -258,7 +264,7 @@ export const ContainerForm: React.FC<ContainerFormProps> = ({
                     folderNamingPattern: e.target.value as ContainerMetadata['folderNamingPattern'],
                   })
                 }
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-2 text-xs text-white outline-none focus:border-blue-500 cursor-pointer"
+                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-2 text-xs text-white outline-none focus:border-blue-500 cursor-pointer"
               >
                 <option value="standard">[Contenedor] - [Cliente] - PO [PO]</option>
                 <option value="underscore">[Contenedor]_[Cliente]_[PO]</option>
