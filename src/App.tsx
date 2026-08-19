@@ -41,7 +41,10 @@ import {
   ArrowUpRight,
   ShieldCheck,
   AlertCircle,
-  FolderSync
+  FolderSync,
+  Copy,
+  ExternalLink,
+  Check
 } from 'lucide-react';
 import type { User } from 'firebase/auth';
 
@@ -53,6 +56,7 @@ export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
+  const [copiedDomain, setCopiedDomain] = useState(false);
 
   // Form Metadata
   const [metadata, setMetadata] = useState<ContainerMetadata>({
@@ -186,7 +190,15 @@ export default function App() {
     }
   };
 
-  // Google Login Handler
+  // Helper for copying current hostname
+  const copyCurrentHost = () => {
+    const host = window.location.hostname;
+    navigator.clipboard.writeText(host);
+    setCopiedDomain(true);
+    setTimeout(() => setCopiedDomain(false), 3000);
+  };
+
+  // Google Login Handler with customized error guide for unauthorized-domain
   const handleLogin = async () => {
     try {
       setIsLoadingAuth(true);
@@ -197,15 +209,61 @@ export default function App() {
       }
     } catch (err: unknown) {
       console.error('Error logging in with Google:', err);
-      const msg = err instanceof Error ? err.message : 'Error desconocido al conectar con Google';
-      setConfirmDialog({
-        isOpen: true,
-        title: 'Error de Autenticación',
-        message: `No se pudo iniciar sesión con Google: ${msg}`,
-        confirmText: 'Entendido',
-        confirmVariant: 'danger',
-        onConfirm: () => setConfirmDialog((d) => ({ ...d, isOpen: false })),
-      });
+      const errorStr = err instanceof Error ? err.message : String(err);
+      
+      if (errorStr.includes('auth/unauthorized-domain')) {
+        const currentHost = window.location.hostname;
+        setConfirmDialog({
+          isOpen: true,
+          title: 'Autorizar Dominio en Firebase',
+          message: `El dominio actual (${currentHost}) no está en la lista de dominios autorizados de Firebase.`,
+          details: (
+            <div className="space-y-3 text-xs text-slate-300">
+              <p>
+                Google bloquea el inicio de sesión por seguridad hasta que agregues este dominio en la consola de Firebase:
+              </p>
+              
+              {/* Domain Box to Copy */}
+              <div className="flex items-center justify-between bg-slate-950 p-2.5 rounded-lg border border-slate-700">
+                <code className="text-emerald-300 font-mono font-bold">{currentHost}</code>
+                <button
+                  type="button"
+                  onClick={copyCurrentHost}
+                  className="flex items-center gap-1 px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] rounded-md transition-colors cursor-pointer"
+                >
+                  {copiedDomain ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span>{copiedDomain ? '¡Copiado!' : 'Copiar Dominio'}</span>
+                </button>
+              </div>
+
+              {/* Steps */}
+              <div className="bg-slate-800/80 p-3 rounded-xl border border-slate-700 space-y-1.5 text-[11px]">
+                <p className="font-semibold text-white">Pasos rápidos para solucionarlo (1 minuto):</p>
+                <ol className="list-decimal list-inside space-y-1 text-slate-300">
+                  <li>Abre la <strong>Consola de Firebase</strong>.</li>
+                  <li>Ve a <strong>Authentication</strong> &gt; pestaña <strong>Settings (Ajustes)</strong>.</li>
+                  <li>Baja a la sección <strong>Authorized domains (Dominios autorizados)</strong>.</li>
+                  <li>Haz clic en <strong>Add domain</strong> y pega: <code className="text-blue-300 font-mono">{currentHost}</code></li>
+                </ol>
+              </div>
+            </div>
+          ),
+          confirmText: 'Abrir Consola de Firebase',
+          confirmVariant: 'primary',
+          onConfirm: () => {
+            window.open('https://console.firebase.google.com/project/gen-lang-client-0632157554/authentication/settings', '_blank');
+          },
+        });
+      } else {
+        setConfirmDialog({
+          isOpen: true,
+          title: 'Error de Autenticación',
+          message: `No se pudo iniciar sesión con Google: ${errorStr}`,
+          confirmText: 'Entendido',
+          confirmVariant: 'danger',
+          onConfirm: () => setConfirmDialog((d) => ({ ...d, isOpen: false })),
+        });
+      }
     } finally {
       setIsLoadingAuth(false);
     }
@@ -542,25 +600,7 @@ export default function App() {
         confirmVariant: 'success',
         onConfirm: async () => {
           setConfirmDialog((d) => ({ ...d, isOpen: false }));
-          try {
-            const loginRes = await googleSignIn();
-            if (loginRes && loginRes.accessToken) {
-              setUser(loginRes.user);
-              setAccessToken(loginRes.accessToken);
-              // Directly start upload after login
-              executeUpload(loginRes.accessToken);
-            }
-          } catch (err: unknown) {
-            const msg = err instanceof Error ? err.message : 'Error al conectar';
-            setConfirmDialog({
-              isOpen: true,
-              title: 'Error de Conexión',
-              message: `No se pudo conectar: ${msg}`,
-              confirmText: 'Cerrar',
-              confirmVariant: 'danger',
-              onConfirm: () => setConfirmDialog((d) => ({ ...d, isOpen: false })),
-            });
-          }
+          await handleLogin();
         },
       });
       return;
