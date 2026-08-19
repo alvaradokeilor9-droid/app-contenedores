@@ -1,17 +1,37 @@
-import { initializeApp, getApps, getApp } from 'firebase/app';
+import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import {
   getAuth,
   signInWithPopup,
   GoogleAuthProvider,
   onAuthStateChanged,
   signOut,
-  type User
+  type User,
+  Auth
 } from 'firebase/auth';
-import firebaseConfig from '../../firebase-applet-config.json';
 
-// Initialize Firebase App instance safely
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-export const auth = getAuth(app);
+// Standard Firebase config for ContainerDrive OAuth & Firestore
+const DEFAULT_FIREBASE_CONFIG = {
+  projectId: 'gen-lang-client-0632157554',
+  appId: '1:774120931391:web:298b7c1121c6bbfaec788a',
+  apiKey: 'AIzaSyC-07tQanZKd8kuzfMQxDPxb3-ecg01YbQ',
+  authDomain: 'gen-lang-client-0632157554.firebaseapp.com',
+  storageBucket: 'gen-lang-client-0632157554.firebasestorage.app',
+  messagingSenderId: '774120931391',
+  measurementId: '',
+  oAuthClientId: '774120931391-a0fhbrn0hp71rdju4ulhrer9l9il1sto.apps.googleusercontent.com',
+  recaptchaSiteKey: '',
+};
+
+// Initialize Firebase App instance safely with fallback
+let app: FirebaseApp;
+try {
+  app = !getApps().length ? initializeApp(DEFAULT_FIREBASE_CONFIG) : getApp();
+} catch (e) {
+  console.warn('Firebase initialization fallback:', e);
+  app = !getApps().length ? initializeApp(DEFAULT_FIREBASE_CONFIG) : getApp();
+}
+
+export const auth: Auth = getAuth(app);
 
 // Provider with Google Drive scopes
 export const googleProvider = new GoogleAuthProvider();
